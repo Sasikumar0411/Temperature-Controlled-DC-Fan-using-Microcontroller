@@ -1,0 +1,37 @@
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // LCD pins: RS, EN, D4, D5, D6, D7
+
+int sensorPin = A0; // LM35 temperature sensor pin
+int fanPin = 3; // Fan control pin (through transistor)
+int potPin = A1; // Potentiometer pin for fan speed adjustment
+
+void setup() {
+  lcd.begin(16, 2);
+  pinMode(sensorPin, INPUT);
+  pinMode(fanPin, OUTPUT);
+}
+
+void loop() {
+  int tempReading = analogRead(sensorPin);
+  float tempC = (tempReading * 5.0 / 1023) / 0.01; // Convert analog reading to Celsius
+
+  int fanSpeed = map(tempC, 20, 40, 0, 255); // Map temperature range to fan speed range
+  analogWrite(fanPin, fanSpeed);
+
+  int potValue = analogRead(potPin);
+  int mappedSpeed = map(potValue, 0, 1023, 0, 255); // Map potentiometer reading to fan speed range
+  analogWrite(fanPin, mappedSpeed);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Temp: ");
+  lcd.print(tempC);
+  lcd.print(" C");
+
+  lcd.setCursor(0, 1);
+  lcd.print("Speed: ");
+  lcd.print(mappedSpeed);
+  lcd.print(" PWM");
+  
+  delay(1000); // Delay for stability
+}
